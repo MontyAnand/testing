@@ -1,5 +1,6 @@
 const fs = require('fs');
 const readline = require('readline');
+const { clearInterval } = require('timers');
 
 const stream = fs.createReadStream('file.csv');
 
@@ -27,7 +28,15 @@ read.on('line', (line)=>{
   dataArray.push(formatData(line));
 })
 read.on('close', ()=>{
-  console.log(dataArray);
+  let count =0;
+  const running_interval = setInterval(()=>{
+    if(count > 10){
+      clearInterval(running_interval);
+    }
+    else{
+      console.log(dataArray[count++]);
+    }
+  },5000)
 })
 
 read.on('error',(err)=>{
