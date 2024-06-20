@@ -36,7 +36,7 @@ read.on('close', ()=>{
     else{
       console.log(dataArray[count++]);
     }
-  },5000)
+  },15000)
 })
 
 read.on('error',(err)=>{

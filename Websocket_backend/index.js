@@ -6,16 +6,23 @@ const worker = new Worker('./worker.js');
 const server = http.createServer();
 const io = new Server(server,{
     cors: {
-        origin: "http://127.0.0.1:5500", // Allows all origins, or specify your domain
+        origin: "*", // Allows all origins, or specify your domain
         methods: ["GET", "POST"]
     }
 });
 
-
+worker.on('message', (data)=>{
+    //console.log(data);
+})
 
 io.on('connection', async (socket)=>{
+    console.log(`client connected : ${socket.id}`);
     worker.on('message', (data)=>{
-        socket.emit('message', data);
+        const obj = {
+            timestamp: Date.now(),
+            ohlcv : data
+        }
+        io.emit('getRawData',obj);
     })
 });
 

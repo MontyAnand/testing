@@ -1,29 +1,35 @@
 const { parentPort } = require('node:worker_threads');
-const mysql = require('mysql');
+const fs = require('node:fs');
+const readline = require('node:readline');
 
-// Create a connection to the database
-const connection = mysql.createConnection({
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: 'Apple@123',
-  database: 'stocks'
+const stream = fs.createReadStream('AAPL_1min_sample.csv');
+
+const readHandler = readline.createInterface({
+  input: stream,
+  crlfDelay: Infinity
 });
 
-// Connect to the database
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err.stack);
-    return;
-  }
-  console.log('Connected to the database as id', connection.threadId);
+const formatData =(line)=>{
+  let l = line.split(',');
+  return [parseFloat(l[1]),parseFloat(l[2]),parseFloat(l[3]),parseFloat(l[4])];
+}
+
+let list = [];
+
+readHandler.on('line', (line)=>{
+  list.push(formatData(line));
 });
 
-// Query the database
-connection.query('SELECT 1 + 1 AS solution', (error, results, fields) => {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
-});
+readHandler.on('close',()=>{
+  let size = list.length;
+  let curr = list.length;
+  const interval = setInterval(()=>{
+    if(curr == 0){
+      clearInterval(interval);
+      return;
+    }
+    parentPort.postMessage(list[size-curr]);
+    curr--;
+  },1000); 
+})
 
-// Close the connection
-connection.end();

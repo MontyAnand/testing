@@ -12,9 +12,9 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         const socket = io('http://127.0.0.1:8000');
-        socket.on('message', (data)=>{
+        socket.on('getRawData', (data)=>{
             console.log(data);
-        })
+        });
     </script>
 </body>
 </html>
